@@ -1,10 +1,88 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Document</title>
+    <meta charset="utf-8">
+    <title>music</title>
+    <style media="screen">
+        .choice {
+            float: left;
+            margin: 1em;
+        }
+        img {
+            cursor: pointer;
+            width: 200px;
+            border: 2px solid white;
+        }
+        .active {
+            border: 2px solid #f00;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .picturebro{
+            text-align: center;
+        }
+
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
 </head>
 <body>
+<h1>What is your favorite ?</h1>
+
+<div class="container">
+
+    <div class="choice left picturebro">
+        <img class="picturebro">
+        <div class="caption"></div>
+        <div class="total"></div>
+    </div>
+
+</div>
+
+<div class="choice right picturebro">
+    <img class="picturebro">
+    <div class="caption"></div>
+    <div class="total"></div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    $(function () {
+        // detect mouse overs
+        $('.choice').on('mouseover', function () {
+            var what = 'left';
+            if($(this).hasClass('right')) {
+                what = 'right';
+            }
+            // tell the server
+            socket.emit('choice', what);
+        });
+        $('.choice').on('mouseout', function () {
+            var what = 'left';
+            if($(this).hasClass('right')) {
+                what = 'right';
+            }
+            // tell the server
+            socket.emit('unchoice', what);
+        });
+    });
+    // update total
+    socket.on('total', function (votes) {
+        $(".left .total").html(votes.left.total);
+        $(".right .total").html(votes.right.total);
+    });
+    // update the whole vote
+    socket.on('votes', function (votes) {
+        $(".left img").prop('src', votes.left.src);
+        $(".left .caption").html(votes.left.name);
+        $(".right img").prop('src', votes.right.src);
+        $(".right .caption").html(votes.right.name);
+    });
+</script>
 
 </body>
 </html>
